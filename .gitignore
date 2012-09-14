@@ -6,6 +6,13 @@ lib-cov
 *.out
 *.pid
 *.gz
+*.env
+*.DS_Store
+*.tmproj
+
+lib/page.css
+lib/page.js
+web.js
 
 pids
 logs
