@@ -50,8 +50,24 @@ class Game
 			an = an[0 ... an.length - 1]
 		move.piece = pieceNotationToInt an[0]
 		move.color = @turn
-		# Fill in from.{file, rank} if missing
-		
+		# Fill in `from.{file, rank}` if missing
+		possibleFroms =
+			switch move.piece
+				when 0
+					rank = if move.color is 1 then move.to.rank - 1 else move.to.rank + 1
+					if move.capture
+						rank: rank, file: move.to.file + d_file for d_file in [-1, 1] when do =>
+							pieceThere = @board[move.to.file + d_file][move.to.rank]
+							move.to.file + d_file in [1..8] and pieceThere.type is 0 and pieceThere.color is move.color
+					else
+						[rank: rank, file: move.to.file]
+				when 1
+					horseCircle = "-1": 2, "-2": 1, "-2": -1, "-1": -2, 1: -2, 2: -1, 2: 1, 1: 2
+					rank: move.to.rank + parseInt(d_rank), file: move.to.file + d_file for d_rank, d_file of horseCircle when do =>
+						pieceThere = @board[move.to.file + d_file][move.to.rank]
+						move.to.rank + d_rank in [1..8] and move.to.file + d_file in [1..8] and pieceThere.type is 1 and pieceThere.color is move.color
+				when 2
+					# Bishop Logic...
 
 exports.newGame = ->
 	new Game()
