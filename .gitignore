@@ -9,6 +9,7 @@ lib-cov
 *.env
 *.DS_Store
 *.tmproj
+*.sublime-*
 
 lib/page.css
 lib/page.js

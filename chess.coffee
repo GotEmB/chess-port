@@ -52,8 +52,22 @@ class Game
 		move.color = @turn
 		# Fill in `from.{file, rank}` if missing
 		possibleFroms =
+			lookUpto = (directions) =>
+			ret = []
+			for [d_file, d_rank] in directions
+				testPos = move.to
+				loop
+					testPos.file += d_file
+					testPos.rank += d_rank
+					break unless testPos.file in [1..8] and testPos.rank in [1..8]
+					if @board[testPos.file][testPos.rank]?
+						ret.push testPos if do (=>
+							pieceThere = @board[testPos.file][testPos.rank]
+							pieceThere.color is move.color and pieceThere.type is move.type)
+						break
+			ret
 			switch move.piece
-				when 0
+				when 0 # Pawn
 					rank = if move.color is 1 then move.to.rank - 1 else move.to.rank + 1
 					if move.capture
 						rank: rank, file: move.to.file + d_file for d_file in [-1, 1] when do =>
@@ -61,24 +75,23 @@ class Game
 							move.to.file + d_file in [1..8] and pieceThere? and pieceThere.type is 0 and pieceThere.color is move.color
 					else
 						[rank: rank, file: move.to.file]
-				when 1
-					horseCircle = "-1": 2, "-2": 1, "-2": -1, "-1": -2, 1: -2, 2: -1, 2: 1, 1: 2
-					rank: move.to.rank + parseInt(d_rank), file: move.to.file + d_file for d_rank, d_file of horseCircle when do =>
+				when 1 # Knight
+					horseCircle = [[-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1], [2, 1], [1, 2]]
+					rank: move.to.rank + parseInt(d_rank), file: move.to.file + d_file for [d_rank, d_file] in horseCircle when do =>
 						pieceThere = @board[move.to.file + d_file][move.to.rank]
 						move.to.rank + d_rank in [1..8] and move.to.file + d_file in [1..8] and pieceThere? and pieceThere.type is 1 and pieceThere.color is move.color
-				when 2
-					ret = []
-					for iter in [[-1, -1], [-1, 1], [1, 1], [1, -1]]
-						testPos = move.to
-						loop
-							testPos.file += iter[0]
-							testPos.rank += iter[1]
-							break unless testPos.file in [1..8] and testPos.rank in [1..8]
-							if @board[testPos.file][testPos.rank]?
-								ret.push testPos if do (=>
-									pieceThere = @board[testPos.file][testPos.rank]
-									pieceThere.color is move.color and pieceThere.type is move.type)
-								break
+				when 2 # Bishop
+					lookUpto [[-1, -1], [-1, 1], [1, 1], [1, -1]]
+				when 3 # Rook
+					lookUpto [[1, 0], [-1, 0], [0, 1], [0, -1]]
+				when 4 # Queen
+					rank: rank, file: file for rank in [1 .. 8] for file in [1 .. 8] when do =>
+						pieceThere = @board[file, rank]
+						pieceThere.type is 4 and pieceThere.color is move.color
+				when 5 # King
+					rank: rank, file: file for rank in [1 .. 8] for file in [1 .. 8] when do =>
+						pieceThere = @board[file, rank]
+						pieceThere.type is 5 and pieceThere.color is move.color
 
 exports.newGame = ->
 	new Game()
