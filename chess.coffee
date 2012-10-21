@@ -48,11 +48,10 @@ class Game
 			move.from ?= {}
 			move.from.file = fileNotationtoInt an[an.length - 1]
 			an = an[0 ... an.length - 1]
-		move.piece = pieceNotationToInt an[0]
+		move.piece = pieceNotationToInt an
 		move.color = @turn
 		# Fill in `from.{file, rank}` if missing
-		possibleFroms =
-			lookUpto = (directions) =>
+		lookUpto = (directions) =>
 			ret = []
 			for [d_file, d_rank] in directions
 				testPos = move.to
@@ -66,6 +65,7 @@ class Game
 							pieceThere.color is move.color and pieceThere.type is move.type)
 						break
 			ret
+		possibleFroms =
 			switch move.piece
 				when 0 # Pawn
 					rank = if move.color is 1 then move.to.rank - 1 else move.to.rank + 1
@@ -85,12 +85,10 @@ class Game
 				when 3 # Rook
 					lookUpto [[1, 0], [-1, 0], [0, 1], [0, -1]]
 				when 4 # Queen
-					rank: rank, file: file for rank in [1 .. 8] for file in [1 .. 8] when do =>
-						pieceThere = @board[file, rank]
-						pieceThere.type is 4 and pieceThere.color is move.color
+					lookUpto [[1, 0], [-1, 0], [0, 1], [0, -1], [-1, -1], [-1, 1], [1, 1], [1, -1]]
 				when 5 # King
 					rank: rank, file: file for rank in [1 .. 8] for file in [1 .. 8] when do =>
-						pieceThere = @board[file, rank]
+						pieceThere = @board[file][rank]
 						pieceThere.type is 5 and pieceThere.color is move.color
 
 exports.newGame = ->
