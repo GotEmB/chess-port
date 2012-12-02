@@ -78,9 +78,9 @@ io.sockets.on "connection", (socket) ->
 			tos.push socket.game.player2
 			result = socket.game.makemove an
 			if result.status is "checkmate"
-				skt.emit result for skt in tos
+				skt.emit "moved", result for skt in tos
 			else if result.status is "moved"
-				skt.emit status: "moved", an: an, color: 0
+				skt.emit "moved", status: "moved", an: an, color: 0 for skt in tos
 			else
 				socket.emit "invalid_move"
 		else if socket is socket.game.player2 and socket.game.turn is 1
@@ -88,9 +88,9 @@ io.sockets.on "connection", (socket) ->
 			tos.push socket.game.player1
 			result = socket.game.makemove an
 			if result.status is "checkmate"
-				skt.emit result for skt in tos
+				skt.emit "moved", result for skt in tos
 			else if result.status is "moved"
-				skt.emit status: "moved", an: an, color: 1
+				skt.emit "moved", status: "moved", an: an, color: 1 for skt in tos
 			else
 				socket.emit "invalid_move"
 		else
